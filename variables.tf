@@ -48,6 +48,11 @@ variable "peer_asn" {
     condition     = var.peer_asn >= 1 && var.peer_asn <= 4294967294
     error_message = "var.peer_asn must be a valid BGP ASN (1-4294967294)"
   }
+
+  validation {
+    condition     = var.peer_asn != var.router_asn
+    error_message = "var.peer_asn must differ from var.router_asn: Cloud Router only peers over eBGP"
+  }
 }
 
 variable "peer_ip_addresses" {
@@ -76,6 +81,23 @@ variable "bgp_sessions" {
       cidrhost(s.router_ip_range, 0) == cidrhost("${s.peer_ip_address}/30", 0)
     ])
     error_message = "var.bgp_sessions must contain exactly two entries; each router_ip_range must be a 169.254.0.0/16 /30 and peer_ip_address must sit in the same /30"
+  }
+
+  validation {
+    condition = length(var.bgp_sessions) != 2 || alltrue([
+      for s in var.bgp_sessions :
+      can(cidrhost(s.router_ip_range, 0)) && try(
+        split("/", s.router_ip_range)[0] != s.peer_ip_address &&
+        !contains([cidrhost(s.router_ip_range, 0), cidrhost(s.router_ip_range, 3)], split("/", s.router_ip_range)[0]) &&
+        !contains([cidrhost(s.router_ip_range, 0), cidrhost(s.router_ip_range, 3)], s.peer_ip_address),
+      false)
+    ])
+    error_message = "Each var.bgp_sessions router address and peer_ip_address must be the two different usable hosts of the /30 (not its network or broadcast address)"
+  }
+
+  validation {
+    condition     = length(var.bgp_sessions) != 2 || try(cidrhost(var.bgp_sessions[0].router_ip_range, 0) != cidrhost(var.bgp_sessions[1].router_ip_range, 0), false)
+    error_message = "The two var.bgp_sessions must use different /30 link-local ranges; one Cloud Router cannot have two interfaces in the same range"
   }
 }
 
