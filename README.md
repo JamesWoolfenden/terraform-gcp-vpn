@@ -66,7 +66,7 @@ No modules.
 | <a name="input_advertised_ip_ranges"></a> [advertised\_ip\_ranges](#input\_advertised\_ip\_ranges) | Extra CIDR ranges the Cloud Router advertises in addition to all subnets; empty uses DEFAULT advertisement | `list(string)` | `[]` | no |
 | <a name="input_advertised_route_priority"></a> [advertised\_route\_priority](#input\_advertised\_route\_priority) | Base MED for routes advertised to the peer (lower is preferred) | `number` | `100` | no |
 | <a name="input_bgp_md5_key"></a> [bgp\_md5\_key](#input\_bgp\_md5\_key) | Optional MD5 authentication key for the BGP sessions; must match the peer's configuration | `string` | `null` | no |
-| <a name="input_bgp_sessions"></a> [bgp\_sessions](#input\_bgp\_sessions) | Two BGP sessions, one per tunnel: the Cloud Router interface link-local /30 (e.g. 169.254.0.1/30) and the peer's address in the same /30 | `list(object({router_ip_range = string, peer_ip_address = string}))` | n/a | yes |
+| <a name="input_bgp_sessions"></a> [bgp\_sessions](#input\_bgp\_sessions) | Two BGP sessions, one per tunnel: the Cloud Router interface link-local /30 (e.g. 169.254.0.1/30) and the peer's address in the same /30 | <pre>list(object({<br/>    router_ip_range = string<br/>    peer_ip_address = string<br/>  }))</pre> | n/a | yes |
 | <a name="input_labels"></a> [labels](#input\_labels) | Labels to apply to the HA VPN gateway, external gateway and tunnels | `map(string)` | `{}` | no |
 | <a name="input_name"></a> [name](#input\_name) | Base name for the HA VPN gateway, router, tunnels, interfaces and BGP peers | `string` | n/a | yes |
 | <a name="input_network"></a> [network](#input\_network) | Self link or ID of the VPC network the HA VPN gateway and Cloud Router attach to | `string` | n/a | yes |
