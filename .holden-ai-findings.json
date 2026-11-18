@@ -1,29 +1,33 @@
 {
-  "scan_date": "2026-11-18T00:00:00Z",
-  "scan_path": ".",
   "category": "all",
   "findings": [
     {
-      "id": "HOLDEN_AI_001",
-      "status": "fixed",
-      "first_seen": "2026-11-18",
-      "last_seen": "2026-11-18",
-      "unresolved_since": null,
-      "suppression_reason": null,
-      "principle": "reliability",
-      "severity": "LOW",
       "confidence": "high",
-      "title": "BGP inputs accept sessions that cannot be created or established: shared /30, peer equal to router address, peer ASN equal to router ASN",
-      "file": "variables.tf",
-      "line": 68,
-      "resource": "variable.bgp_sessions",
-      "related_resources": ["variable.peer_asn", "google_compute_router_interface.main", "google_compute_router_peer.main"],
       "explanation": "The bgp_sessions validation checked that each peer sits in its router's /30 but not that the two sessions use different /30s (two interfaces on one Cloud Router in the same range fail at apply), that the router and peer addresses differ and are usable hosts rather than the network or broadcast address, or that peer_asn differs from router_asn (Cloud Router only supports eBGP, so the session never comes up). All of these plan cleanly. Principle is a best fit: this is an apply-time correctness bug.",
-      "remediation": "Validate distinct /30s across sessions, distinct usable host addresses within each /30, and peer_asn != router_asn.",
+      "file": "variables.tf",
+      "first_seen": "2026-11-18",
+      "fix": "validation {\n  condition     = var.peer_asn != var.router_asn\n  error_message = \"var.peer_asn must differ from var.router_asn: Cloud Router only peers over eBGP\"\n}\n\n# plus two var.bgp_sessions validations: usable distinct hosts per /30, and distinct /30s across sessions",
       "fixable": true,
-      "fix": "validation {\n  condition     = var.peer_asn != var.router_asn\n  error_message = \"var.peer_asn must differ from var.router_asn: Cloud Router only peers over eBGP\"\n}\n\n# plus two var.bgp_sessions validations: usable distinct hosts per /30, and distinct /30s across sessions"
+      "id": "HOLDEN_AI_001",
+      "last_seen": "2026-11-18",
+      "line": 68,
+      "principle": "reliability",
+      "related_resources": [
+        "variable.peer_asn",
+        "google_compute_router_interface.main",
+        "google_compute_router_peer.main"
+      ],
+      "remediation": "Validate distinct /30s across sessions, distinct usable host addresses within each /30, and peer_asn != router_asn.",
+      "resource": "variable.bgp_sessions",
+      "severity": "LOW",
+      "status": "fixed",
+      "suppression_reason": null,
+      "title": "BGP inputs accept sessions that cannot be created or established: shared /30, peer equal to router address, peer ASN equal to router ASN",
+      "unresolved_since": null
     }
   ],
+  "scan_date": "2026-11-18T00:00:00Z",
+  "scan_path": ".",
   "suggested_policies": [],
   "suggested_suppressions": []
 }
